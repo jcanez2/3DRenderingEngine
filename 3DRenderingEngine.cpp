@@ -1,8 +1,6 @@
-// 3DRenderingEngine.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+
 #include "olcConsoleGameEngine.h"
 #include <iostream>
-#include "olcConsoleGameEngine.h"
 
 struct Vector3D
 {
@@ -40,11 +38,12 @@ private:
 	matrix4x4 projectionMatrix;
 	float thetaValue;
 
-	void MultiplyMatrix(Vector3D &vector1, Vector3D &vector2, matrix4x4 &m)
+	
+	void MultiplyMatrix(Vector3D& vector1, Vector3D& vector2, matrix4x4& m)
 	{
 		vector2.x = vector1.x * m.matrix[0][0] + vector1.y * m.matrix[1][0] + vector1.z * m.matrix[2][0] + m.matrix[3][0];
-		vector2.y = vector1.x * m.matrix[0][1] + vector1.y * m.matrix[1][1] + vector1.z * m.matrix[2][0] + m.matrix[3][1];
-		vector2.z = vector1.x * m.matrix[0][2] + vector1.y * m.matrix[1][2] + vector1.z * m.matrix[2][0] + m.matrix[3][2];
+		vector2.y = vector1.x * m.matrix[0][1] + vector1.y * m.matrix[1][1] + vector1.z * m.matrix[2][1] + m.matrix[3][1];
+		vector2.z = vector1.x * m.matrix[0][2] + vector1.y * m.matrix[1][2] + vector1.z * m.matrix[2][2] + m.matrix[3][2];
 		float w =   vector1.x * m.matrix[0][3] + vector1.y * m.matrix[1][3] + vector1.z * m.matrix[2][3] + m.matrix[3][3];
 
 		if(w != 0.0f)
@@ -55,11 +54,11 @@ private:
 		}
 	}
 
-	
 	public:
 	bool OnUserCreate() override
 	{
 		meshCube.Triangles = {
+			/*
 			// Front
 			{0.0f, 0.0f, 0.0f,       0.0f, 1.0f, 0.0f,     1.0f, 1.0f, 0.0f},
 			{0.0f, 0.0f, 0.0f,       1.0f, 1.0f, 0.0f,     1.0f, 0.0f, 0.0f},
@@ -81,15 +80,39 @@ private:
 			// Bottom
 			{1.0f, 0.0f, 1.0f,       0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f},
 			{1.0f, 0.0f, 1.0f,       0.0f, 0.0f, 0.0f,     1.0f, 0.0f, 0.0f}
+			*/
+			// SOUTH
+		{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+
+		// EAST                                                      
+		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
+		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
+
+		// NORTH                                                     
+		{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
+		{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
+
+		// WEST                                                      
+		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
+		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
+
+		// TOP                                                       
+		{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
+		{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
+
+		// BOTTOM                                                    
+		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
+		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
 			
 		};
 
 		// Projection 2D into 3D Matrix
-		float nearPlane = 0.1f;
-		float farPlane = 1000.0f;
-		float fieldOfView = 90.0f;
-		float aspectRation = (float)ScreenHeight() / (float)ScreenWidth();
-		float fieldOfViewRadians = 1.0f / tanf(fieldOfView * 0.5f / 180.0f * 3.14159f);
+		const float nearPlane = 0.1f;
+		const float farPlane = 1000.0f;
+		const float fieldOfView = 90.0f;
+		const float aspectRation = (float)(ScreenHeight()) / (float)(ScreenWidth());
+		const float fieldOfViewRadians = 1.0f / tanf(fieldOfView * 0.5f / 180.0f * 3.14159f);
 
 		projectionMatrix.matrix[0][0] = aspectRation * fieldOfViewRadians;
 		projectionMatrix.matrix[1][1] = fieldOfViewRadians;
@@ -132,47 +155,6 @@ private:
 		for(auto currentTriangle : meshCube.Triangles)
 		{
 
-			/*
-			 * triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
-
-			// Rotate in Z-Axis
-			MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
-			MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
-			MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
-
-			// Rotate in X-Axis
-			MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
-
-			// Offset into the screen
-			triTranslated = triRotatedZX;
-			triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-			triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-			triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
-
-			// Project triangles from 3D --> 2D
-			MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-			MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-			MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
-
-			// Scale into view
-			triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
-			triProjected.p[1].x += 1.0f; triProjected.p[1].y += 1.0f;
-			triProjected.p[2].x += 1.0f; triProjected.p[2].y += 1.0f;
-			triProjected.p[0].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[0].y *= 0.5f * (float)ScreenHeight();
-			triProjected.p[1].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[1].y *= 0.5f * (float)ScreenHeight();
-			triProjected.p[2].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[2].y *= 0.5f * (float)ScreenHeight();
-
-			// Rasterize triangle
-			DrawTriangle(triProjected.p[0].x, triProjected.p[0].y,
-				triProjected.p[1].x, triProjected.p[1].y,
-				triProjected.p[2].x, triProjected.p[2].y,
-				PIXEL_SOLID, FG_WHITE);
-			 */
 			Triangle triangleProjected;
 			Triangle triangleTranslated;
 			Triangle triangleRotatedZ;
@@ -212,7 +194,9 @@ private:
 			
 
 			
-			DrawTriangle(triangleProjected.point[0].x, triangleProjected.point[0].y, triangleProjected.point[1].x, triangleProjected.point[1].y, triangleProjected.point[2].x, triangleProjected.point[2].y, PIXEL_SOLID, FG_WHITE);
+			DrawTriangle(triangleProjected.point[0].x, triangleProjected.point[0].y, triangleProjected.point[1].x,
+			             triangleProjected.point[1].y, triangleProjected.point[2].x, triangleProjected.point[2].y,
+			             PIXEL_SOLID, FG_WHITE);
 			
 		}
 
@@ -232,13 +216,3 @@ int main()
     std::cout << "Hello World!\n";
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
